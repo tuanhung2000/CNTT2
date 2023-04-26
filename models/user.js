@@ -21,7 +21,6 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: "client",
   },
   createdDate: {
     type: Date,

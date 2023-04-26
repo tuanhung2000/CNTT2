@@ -14,23 +14,26 @@ const signup = async (req, res) => {
       lastName,
       address,
       phoneNumber,
+      role,
     } = req.body;
     const Account = await account.findOne({ username: username });
     const User = await user.findOne({ username: username });
+
     if (User || Account) {
       return res.status(401).send({
         msg: "User already exist!!!",
       });
     }
-    const salt = await bcryptjs.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
 
-    await Account.create({
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await account.create({
       username: username,
-      password: hashPassword,
+      password: hashedPassword,
     });
 
-    await User.create({
+    await user.create({
       username: username,
       email: email,
       firstName: firstName,
@@ -38,13 +41,13 @@ const signup = async (req, res) => {
       address: address,
       phoneNumber: phoneNumber,
       createdDate: new Date(),
+      role: role || "client",
     });
-
-    return req.status(200).send({
+    return res.status(200).send({
       msg: "Created user success!!!",
     });
   } catch (error) {
-    return req.status(500).send({
+    return res.status(500).send({
       msg: "Internal Server Error",
     });
   }
@@ -58,20 +61,24 @@ const login = async (req, res) => {
     const User = await user.findOne({ username: username });
 
     if (!User || !Account || !password) {
-      throw new Error("Invalid Username or Password", 401);
+      return res.status(401).send({
+        msg: "Invalid Username or Password",
+      });
     }
 
     const comparedPassword = await bcrypt.compare(password, Account.password);
 
     if (!comparedPassword) {
-      throw new Error("Invalid Username or Password", 401);
+      return res.status(401).send({
+        msg: "Invalid Username or Password",
+      });
     }
 
     const accessToken = jwt.sign(
       {
         UserInfo: {
           username: username,
-          role: user.role,
+          role: User.role,
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
@@ -86,7 +93,9 @@ const login = async (req, res) => {
       User,
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
@@ -96,20 +105,29 @@ const changePassword = async (req, res) => {
 
     const Account = await account.findOne({ username: username });
 
+    if (!Account) {
+      return res.status(401).send({
+        msg: "Invalid Username or Password",
+      });
+    }
+
     const comparedPassword = await bcrypt.compare(password, Account.password);
 
     if (!comparedPassword) {
-      throw new Error("Invalid Password", 401);
+      return res.status(401).send({
+        msg: "Invalid Username or Password",
+      });
     }
+
     const salt = await bcrypt.genSalt(10);
-    const hashNewPassword = await bcrypt.hash(newPassword, salt);
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
 
     await account.findByIdAndUpdate(
       {
         _id: Account._id,
       },
       {
-        password: hashNewPassword,
+        password: newHashedPassword,
       }
     );
 
@@ -117,7 +135,9 @@ const changePassword = async (req, res) => {
       msg: "Update password success!!",
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 

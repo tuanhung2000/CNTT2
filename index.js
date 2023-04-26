@@ -5,12 +5,16 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-const connectDB = require("./config/dbConn");
+const DBconnection = require("./config/dbConn");
 // const corsOptions = require("");
 const PORT = process.env.PORT || 9090;
 
 const app = express();
-connectDB();
+DBconnection();
+
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
+// const vehicleRoutes = require('./routes/')
 
 // app.use(cors(corsOptions))
 
@@ -19,6 +23,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(cookieParser());
+
+app.use("/auth", authRoutes);
+
+app.use("/user", userRoutes);
+
+// app.use('/vehicle', )
 
 app.use("*", (req, res) => {
   res.status(404).send({

@@ -4,6 +4,9 @@ const VehicleSchema = new mongoose.Schema({
   driverID: {
     type: String,
   },
+  image: {
+    type: [String],
+  },
   licensePlate: {
     type: String,
   },
@@ -20,7 +23,7 @@ const VehicleSchema = new mongoose.Schema({
     type: String,
   },
   feature: {
-    type: String,
+    type: [String],
   },
   description: {
     type: String,

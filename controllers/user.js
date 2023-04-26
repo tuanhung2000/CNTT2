@@ -1,16 +1,13 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
-const order = require("../models/order");
 const vehicle = require("../models/vehicle");
 const order = require("../models/order");
 
-const authorization = req.headers["authorization"].split(" ")[1];
-const decodedToken = jwt.verify(authorization, process.env.JWT_ACCESS_TOKEN);
-
 const getUserDetails = async (req, res) => {
   try {
-    const username = decodedToken.UserInfo.username;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -32,14 +29,16 @@ const getUserDetails = async (req, res) => {
       User,
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 const editUserInfo = async (req, res) => {
   try {
-    const { firstName, lastName, address, phoneNumber, userID } = req.body;
-    const username = decodedToken.UserInfo.username;
+    const { firstName, lastName, address, phoneNumber } = req.body;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -60,7 +59,7 @@ const editUserInfo = async (req, res) => {
     if (User.role == "admin") {
       await user.findByIdAndUpdate(
         {
-          _id: userID,
+          _id: User._id,
         },
         {
           firstName: firstName,
@@ -90,14 +89,16 @@ const editUserInfo = async (req, res) => {
       msg: "Update infomation success!!!",
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 const getHistoryList = async (req, res) => {
   try {
     const { firstName, lastName, address, phoneNumber } = req.body;
-    const username = decodedToken.UserInfo.username;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -122,7 +123,9 @@ const getHistoryList = async (req, res) => {
       Order,
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
@@ -137,7 +140,7 @@ const bookTrip = async (req, res) => {
       clientRequire,
       total,
     } = req.body;
-    const username = decodedToken.UserInfo.username;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -181,14 +184,15 @@ const bookTrip = async (req, res) => {
       order,
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 const cancleTrip = async (req, res) => {
   try {
-    const vehicleID = req.body.vehicleID;
-    const username = decodedToken.UserInfo.username;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -224,14 +228,16 @@ const cancleTrip = async (req, res) => {
       msg: "Cancle success!!",
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 //Admin
 const getAllUsers = async (req, res) => {
   try {
-    const username = decodedToken.UserInfo.username;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -261,13 +267,15 @@ const getAllUsers = async (req, res) => {
       allUsers,
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 const deleteUser = async (req, res) => {
   try {
-    const username = decodedToken.UserInfo.username;
+    const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
       res.status(403).send({
@@ -299,29 +307,26 @@ const deleteUser = async (req, res) => {
       msg: "Delete user success!!",
     });
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 const getAllOrder = async (req, res) => {
   try {
   } catch (error) {
-    throw new Error("Internal Server Error", 500);
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
   }
 };
 
 //Driver
-const responseOrder = async(req, res) => {
-    
-}
+const responseOrder = async (req, res) => {};
 
 module.exports = {
   getUserDetails,
   editUserInfo,
-  getHistoryList,
-  bookTrip,
-  cancleTrip,
-
   getAllUsers,
-  deleteUser,
 };

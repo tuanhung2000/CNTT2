@@ -7,10 +7,10 @@ const OrderSchema = new mongoose.Schema({
   address: {
     type: String,
   },
-  start: {
+  from: {
     type: Date,
   },
-  end: {
+  to: {
     type: Date,
   },
   vehicleID: {
@@ -24,6 +24,12 @@ const OrderSchema = new mongoose.Schema({
   },
   total: {
     type: Number,
+  },
+  totalTime: {
+    type: String,
+  },
+  isCompleted: {
+    type: Boolean,
   },
 });
 

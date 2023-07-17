@@ -14,7 +14,7 @@ DBconnection();
 
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
-// const vehicleRoutes = require('./routes/')
+const vehicleRoutes = require("./routes/vehicle");
 
 app.use(cors(corsOptions));
 
@@ -28,7 +28,7 @@ app.use("/auth", authRoutes);
 
 app.use("/user", userRoutes);
 
-// app.use('/vehicle', )
+app.use("/vehicle", vehicleRoutes);
 
 app.use("*", (req, res) => {
   res.status(404).send({

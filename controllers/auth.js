@@ -56,7 +56,6 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-
     const Account = await account.findOne({ username: username });
     const User = await user.findOne({ username: username });
 
@@ -67,7 +66,6 @@ const login = async (req, res) => {
     }
 
     const comparedPassword = await bcrypt.compare(password, Account.password);
-
     if (!comparedPassword) {
       return res.status(401).send({
         msg: "Invalid Username or Password",

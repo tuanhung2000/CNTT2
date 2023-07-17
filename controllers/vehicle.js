@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const user = require("../models/user");
 const account = require("../models/account");
 const vehicle = require("../models/vehicle");
+const vehicleList = require("../models/vehicleList");
 const { getAccess } = require("../config/getAccess");
 
 const getAllVehicle = async (req, res) => {
@@ -203,10 +204,33 @@ const deleteVehicle = async (req, res) => {
   }
 };
 
+const createVehicleList = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { year, make, model, category } = req.body;
+
+    const Vehicle_List = await vehicleList.create({
+      year: "eaa",
+      make: "aaa",
+      model: "aaa",
+      category: "aaad",
+    });
+
+    return res
+      .status(200)
+      .send({ msg: "Vehicle registration successful", Vehicle_List });
+  } catch (error) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   getAllVehicle,
   getVehicle,
   createVehicle,
   editVehicle,
   deleteVehicle,
+  createVehicleList,
 };

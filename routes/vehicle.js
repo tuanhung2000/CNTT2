@@ -6,6 +6,7 @@ const {
   createVehicle,
   editVehicle,
   deleteVehicle,
+  createVehicleList,
 } = require("../controllers/vehicle");
 
 router
@@ -13,6 +14,8 @@ router
   .get("/", getAllVehicle)
   .post("/", createVehicle)
   .patch("/:vehicleID", editVehicle)
-  .delete("/:vehicleID", deleteVehicle);
+  .delete("/:vehicleID", deleteVehicle)
+
+  .post("/vehicle_list", createVehicleList);
 
 module.exports = router;

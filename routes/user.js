@@ -6,9 +6,7 @@ const {
   getAllUsers,
 } = require("../controllers/user");
 
-router.get("/details", getUserDetails);
-
-router.patch("/edit-info", editUserInfo);
+router.get("/details", getUserDetails).patch("/edit-info", editUserInfo);
 
 router.get("/all-users", getAllUsers);
 

@@ -1,18 +1,35 @@
-require("dotenv").config();
-const jwt = require("jsonwebtoken");
 const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
 const vehicle = require("../models/vehicle");
-const order = require("../models/order");
 const review = require("../models/review");
 
 const getReviews = async (req, res) => {
-  //all users can read
+  //all users can read by vehicle rate or driver rate
   try {
-    const Reviews = await review.find({});
-    return res.status(200).send({
-      Reviews,
+    const contentID = req.body.contentID;
+
+    const Vehicle = await vehicle.findOne({
+      _id: contentID,
     });
+
+    if (Vehicle) {
+      return res.status(200).send({
+        reviews: await review.find({
+          typeID: vehicle._id,
+        }),
+      });
+    } else {
+      const User = await user.findOne({
+        _id: contentID,
+        role: "driver",
+      });
+
+      return res.status(200).send({
+        reviews: await review.find({
+          typeID: User._id,
+        }),
+      });
+    }
   } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",
@@ -42,18 +59,11 @@ const postReview = async (req, res) => {
         msg: "Not found user",
       });
     }
+    const Vehicle = vehicle.findOne({
+      id: typeID,
+    });
 
-    if (type === "vehicle") {
-      const Vehicle = vehicle.findOne({
-        id: typeID,
-      });
-
-      if (!Vehicle) {
-        return res.status(403).send({
-          msg: "Not Found!!!",
-        });
-      }
-
+    if (Vehicle) {
       review.create({
         userID: User._id,
         type: type,
@@ -61,20 +71,26 @@ const postReview = async (req, res) => {
         rate: rate,
         content: content,
       });
+      const allCurrentReview = await review.find({ typeID: typeID });
+      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
+        count += item;
+        return sum + item * (index + 1);
+      }, 0);
+      await vehicle.findOneAndUpdate(
+        {
+          _id: typeID,
+          role: "driver",
+        },
+        { rate: sum / count }
+      );
       return res.status(200).send({
         msg: "Review completed",
       });
     } else {
-      const Driver = vehicle.findOne({
+      const Driver = await vehicle.findOne({
         _id: typeID,
         role: "driver",
       });
-
-      if (!Driver) {
-        return res.status(403).send({
-          msg: "Not Found!!!",
-        });
-      }
 
       review.create({
         userID: Driver._id,
@@ -83,6 +99,20 @@ const postReview = async (req, res) => {
         rate: rate,
         content: content,
       });
+
+      const allCurrentReview = await review.find({ typeID: typeID });
+      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
+        count += item;
+        return sum + item * (index + 1);
+      }, 0);
+      await vehicle.findOneAndUpdate(
+        {
+          _id: typeID,
+          role: "driver",
+        },
+        { rate: sum / count }
+      );
+
       return res.status(200).send({
         msg: "Review completed",
       });
@@ -114,6 +144,7 @@ const editReview = async (req, res) => {
         msg: "Not found user",
       });
     }
+
     const Review = review.findOne({
       _id: reviewID,
     });
@@ -128,6 +159,20 @@ const editReview = async (req, res) => {
           content: content,
         }
       );
+
+      const allCurrentReview = await review.find({ typeID: Review.typeID });
+      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
+        count += item;
+        return sum + item * (index + 1);
+      }, 0);
+      await vehicle.findOneAndUpdate(
+        {
+          _id: typeID,
+          role: "driver",
+        },
+        { rate: sum / count }
+      );
+
       return res.status(200).send({
         msg: "Edit completed",
       });
@@ -171,6 +216,20 @@ const deleteReview = async (req, res) => {
       review.findOneAndDelete({
         _id: reviewID,
       });
+
+      const allCurrentReview = await review.find({ typeID: Review.typeID });
+      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
+        count += item;
+        return sum + item * (index + 1);
+      }, 0);
+      await vehicle.findOneAndUpdate(
+        {
+          _id: typeID,
+          role: "driver",
+        },
+        { rate: sum / count }
+      );
+
       return res.status(200).send({
         msg: "Delete completed",
       });

@@ -18,8 +18,12 @@ const VehicleSchema = new mongoose.Schema({
   },
   rate: {
     type: String,
+    default: 0,
   },
   type: {
+    type: String,
+  },
+  make: {
     type: String,
   },
   model: {

@@ -6,6 +6,39 @@ const vehicle = require("../models/vehicle");
 const order = require("../models/order");
 const vehicle = require("../models/vehicle");
 
+const getAllOrder = async (req, res) => {
+  try {
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({
+      username: username,
+    });
+
+    if (!User) {
+      return res.status(401).send({
+        msg: "Not found user",
+      });
+    }
+    if (User.role !== "admin") {
+      return res.status(401).send({
+        msg: "No Permission",
+      });
+    }
+
+    return res.status(200).send({
+      orders: await order.find({}),
+    });
+  } catch (e) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
 const requestOrder = async (req, res) => {
   try {
     const {
@@ -303,4 +336,5 @@ module.exports = {
   editOrder,
   deleteOrder,
   responseOrder,
+  getAllOrder,
 };

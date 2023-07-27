@@ -7,15 +7,18 @@ const {
   editVehicle,
   deleteVehicle,
   createVehicleList,
+  queryVehicle,
 } = require("../controllers/vehicle");
 
 router
-  .get("/:vehicleID", getVehicle)
   .get("/", getAllVehicle)
+
+  .get("/vehicle_query", queryVehicle)
+  .get("/:vehicleID", getVehicle)
+
   .post("/", createVehicle)
+  .post("/vehicle_list", createVehicleList)
+
   .patch("/:vehicleID", editVehicle)
-  .delete("/:vehicleID", deleteVehicle)
-
-  .post("/vehicle_list", createVehicleList);
-
+  .delete("/:vehicleID", deleteVehicle);
 module.exports = router;

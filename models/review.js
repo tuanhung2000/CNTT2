@@ -10,6 +10,9 @@ const ReviewSchema = new mongoose.Schema({
   typeID: {
     type: String,
   },
+  userName: {
+    type: String,
+  },
   rate: {
     type: String,
   },

@@ -25,6 +25,10 @@ const UserSchema = new mongoose.Schema({
   createdDate: {
     type: Date,
   },
+  rate: {
+    type: String,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("User", UserSchema);

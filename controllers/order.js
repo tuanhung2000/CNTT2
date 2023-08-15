@@ -4,7 +4,6 @@ const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
 const vehicle = require("../models/vehicle");
 const order = require("../models/order");
-const vehicle = require("../models/vehicle");
 
 const getAllOrder = async (req, res) => {
   try {
@@ -41,6 +40,7 @@ const getAllOrder = async (req, res) => {
 
 const requestOrder = async (req, res) => {
   try {
+    console.log('?')
     const {
       vehicleID,
       from,
@@ -71,7 +71,7 @@ const requestOrder = async (req, res) => {
     }
 
     const Vehicle = await vehicle.findOne({
-      vehicleID: vehicleID,
+      _id: vehicleID,
     });
 
     if (!Vehicle) {
@@ -80,11 +80,11 @@ const requestOrder = async (req, res) => {
       });
     }
 
-    if (Vehicle.isAvailable === false) {
-      return res.status(401).send({
-        msg: "Not available",
-      });
-    }
+    // if (Vehicle.isAvailable === false) {
+    //   return res.status(401).send({
+    //     msg: "Not available",
+    //   });
+    // }
 
     await order.create({
       vehicleID: vehicleID,
@@ -140,7 +140,7 @@ const editOrder = async (req, res) => {
     }
 
     const Vehicle = await vehicle.findOne({
-      vehicleID: vehicleID,
+      _id: vehicleID,
     });
 
     const Order = await order.findOne({
@@ -160,11 +160,11 @@ const editOrder = async (req, res) => {
       });
     }
 
-    if (Vehicle.isAvailable === true) {
-      return res.status(401).send({
-        msg: "Cannot edit",
-      });
-    }
+    // if (Vehicle.isAvailable === true) {
+    //   return res.status(401).send({
+    //     msg: "Cannot edit",
+    //   });
+    // }
 
     await order.findByIdAndUpdate(
       {
@@ -213,7 +213,7 @@ const deleteOrder = async (req, res) => {
     }
 
     const Vehicle = await vehicle.findOne({
-      vehicleID: vehicleID,
+      _id: vehicleID,
     });
 
     const Order = await order.findOne({
@@ -275,7 +275,7 @@ const responseOrder = async (req, res) => {
     }
 
     const Vehicle = await vehicle.findOne({
-      vehicleID: vehicleID,
+      _id: vehicleID,
     });
 
     const Order = await order.findOne({

@@ -1,11 +1,21 @@
 const express = require("express");
 const router = express.Router();
-// const {} = require("../controllers/user");
+const {
+    requestOrder,
+    editOrder,
+    deleteOrder,
+    responseOrder,
+    getAllOrder,
+} = require("../controllers/order");
 
-router.post("/", );
+router.get("/all-orders", getAllOrder);
 
-router.patch("/", );
+router.post("/requestOrder", requestOrder);
 
-router.get("/", );
+router.post("/responseOrder", responseOrder);
+
+router.patch("/updateOrder", editOrder);
+
+router.delete("/deleteOrder", deleteOrder);
 
 module.exports = router;

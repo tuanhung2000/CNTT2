@@ -30,6 +30,7 @@ const OrderSchema = new mongoose.Schema({
   },
   isCompleted: {
     type: Boolean,
+    default: false
   },
 });
 

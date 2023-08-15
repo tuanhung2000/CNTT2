@@ -35,6 +35,10 @@ const VehicleSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  isAvailable: {
+    type: Boolean,
+    default: true
+  }
 });
 
 module.exports = mongoose.model("Vehicle", VehicleSchema);

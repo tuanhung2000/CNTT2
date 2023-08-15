@@ -68,6 +68,8 @@ const createVehicle = async (req, res) => {
         msg: "Authentication!!!",
       });
     }
+    console.log(req.body)
+    console.log('1')
     const User = await user.findOne({ username: username });
 
     if (!User || User.role == "client") {
@@ -75,6 +77,7 @@ const createVehicle = async (req, res) => {
         msg: "Not allowed",
       });
     }
+    console.log('2')
 
     const existedVehicle = await vehicle.findOne({
       licensePlate: licensePlate,
@@ -84,25 +87,27 @@ const createVehicle = async (req, res) => {
         msg: "Vehicle already exist!!!",
       });
     }
+    console.log('3')
 
     const onlyVehicle = await vehicle.findOne({
       driverID: User._id,
       type: "Have a Driver",
     });
+    console.log('4')
 
     if (type == "Have a Driver" && onlyVehicle) {
       return res.status(401).send({
         msg: "Driver already have own vehicle",
       });
     }
+    console.log('5')
 
     const Make = await makes.findOne({
       make: make,
     });
+    console.log('6')
 
-    const Model = await models.findOne({
-      makeID: Make.ID,
-    });
+
 
     const highestMakeID = await makes.find({}).sort({ ID: -1 }).limit(1);
 
@@ -116,11 +121,18 @@ const createVehicle = async (req, res) => {
         makeID: +highestMakeID + 1,
       });
     }
-    if (Make && !Model) {
+    console.log('8')
+    const Model = await models.findOne({
+      makeID: Make.ID,
+    });
+
+    console.log('7', Model)
+    if (Make && !Model) { 
       await model.create({
         model: model,
       });
     }
+    console.log('9')
 
     const Vehicle = await vehicle.create({
       driverID: User._id,
@@ -134,6 +146,7 @@ const createVehicle = async (req, res) => {
       feature: feature,
       description: description,
     });
+    console.log('10')
 
     const VehicleSpec = await vehicleSpec.create({
       driverID: User._id,
@@ -144,6 +157,7 @@ const createVehicle = async (req, res) => {
       consumption: consumption,
       maxSpeed: maxSpeed,
     });
+    console.log('11')
 
     return res
       .status(200)

@@ -6,7 +6,7 @@ const review = require("../models/review");
 const getReviews = async (req, res) => {
   //all users can read by vehicle rate or driver rate
   try {
-    const contentID = req.body.contentID;
+    const contentID = req.params.contentID;
 
     const Vehicle = await vehicle.findOne({
       _id: contentID,
@@ -19,11 +19,11 @@ const getReviews = async (req, res) => {
         }),
       });
     } else {
+
       const User = await user.findOne({
         _id: contentID,
         role: "driver",
       });
-
       return res.status(200).send({
         reviews: await review.find({
           typeID: User._id,
@@ -62,7 +62,23 @@ const postReview = async (req, res) => {
     const Vehicle = vehicle.findOne({
       id: typeID,
     });
+    console.log('1')
 
+    // 
+    const allCurrentReview = await review.find({ typeID: typeID });
+    let scores = []
+    allCurrentReview.forEach((val) => {
+      scores.push(val.rate)
+    })
+    function calculate() {
+      var total = 0;
+      for (var i = 0; i < scores.length; i++) {
+        total += parseFloat(scores[i]);
+      }
+      average = (total / scores.length).toFixed(2);
+      return average
+    }
+    // 
     if (Vehicle) {
       review.create({
         userID: User._id,
@@ -71,18 +87,25 @@ const postReview = async (req, res) => {
         rate: rate,
         content: content,
       });
-      const allCurrentReview = await review.find({ typeID: typeID });
-      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
-        count += item;
-        return sum + item * (index + 1);
-      }, 0);
+      console.log('1')
+
+
+      // sum = allCurrentReview.forEach((val) => {
+      //   val.rate.reduce(function (sum, item, index) {
+      //     count += item;
+      //     return sum + item * (index + 1);
+      //   }, 0);
+      // })
+
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
           role: "driver",
         },
-        { rate: sum / count }
+        { rate: calculate() }
       );
+      console.log('4')
+
       return res.status(200).send({
         msg: "Review completed",
       });
@@ -91,6 +114,7 @@ const postReview = async (req, res) => {
         _id: typeID,
         role: "driver",
       });
+      console.log('5')
 
       review.create({
         userID: Driver._id,
@@ -100,18 +124,23 @@ const postReview = async (req, res) => {
         content: content,
       });
 
-      const allCurrentReview = await review.find({ typeID: typeID });
-      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
-        count += item;
-        return sum + item * (index + 1);
-      }, 0);
-      await vehicle.findOneAndUpdate(
+      // const allCurrentReview = await review.find({ typeID: typeID });
+      console.log('6')
+
+      // sum = allCurrentReview.rate.reduce(function (sum, item, index) {
+      //   count += item;
+      //   return sum + item * (index + 1);
+      // }, 0);
+      console.log('7')
+
+      await user.findOneAndUpdate(
         {
           _id: typeID,
           role: "driver",
         },
-        { rate: sum / count }
+        { rate: calculate() }
       );
+      console.log('8')
 
       return res.status(200).send({
         msg: "Review completed",
@@ -159,18 +188,28 @@ const editReview = async (req, res) => {
           content: content,
         }
       );
+      // 
+      const allCurrentReview = await review.find({ typeID: typeID });
+      let scores = []
+      allCurrentReview.forEach((val) => {
+        scores.push(val.rate)
+      })
+      function calculate() {
+        var total = 0;
+        for (var i = 0; i < scores.length; i++) {
+          total += parseFloat(scores[i]);
+        }
+        average = (total / scores.length).toFixed(2);
+        return average
+      }
+      // 
 
-      const allCurrentReview = await review.find({ typeID: Review.typeID });
-      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
-        count += item;
-        return sum + item * (index + 1);
-      }, 0);
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
           role: "driver",
         },
-        { rate: sum / count }
+        { rate: calculate() }
       );
 
       return res.status(200).send({
@@ -217,17 +256,27 @@ const deleteReview = async (req, res) => {
         _id: reviewID,
       });
 
-      const allCurrentReview = await review.find({ typeID: Review.typeID });
-      sum = allCurrentReview.rate.reduce(function (sum, item, index) {
-        count += item;
-        return sum + item * (index + 1);
-      }, 0);
+      // 
+      const allCurrentReview = await review.find({ typeID: typeID });
+      let scores = []
+      allCurrentReview.forEach((val) => {
+        scores.push(val.rate)
+      })
+      function calculate() {
+        var total = 0;
+        for (var i = 0; i < scores.length; i++) {
+          total += parseFloat(scores[i]);
+        }
+        average = (total / scores.length).toFixed(2);
+        return average
+      }
+      // 
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
           role: "driver",
         },
-        { rate: sum / count }
+        { rate: calculate() }
       );
 
       return res.status(200).send({

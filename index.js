@@ -15,6 +15,8 @@ DBconnection();
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const vehicleRoutes = require("./routes/vehicle");
+const orderRoutes = require("./routes/order");
+const reviewRoutes = require("./routes/review");
 
 app.use(cors(corsOptions));
 
@@ -28,7 +30,11 @@ app.use("/auth", authRoutes);
 
 app.use("/user", userRoutes);
 
+app.use('/order', orderRoutes)
+
 app.use("/vehicle", vehicleRoutes);
+
+app.use("/review", reviewRoutes);
 
 app.use("*", (req, res) => {
   res.status(404).send({

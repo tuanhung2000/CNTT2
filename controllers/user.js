@@ -4,6 +4,7 @@ const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
 const vehicle = require("../models/vehicle");
 const order = require("../models/order");
+const wallet = require("../models/wallet")
 
 const getUserDetails = async (req, res) => {
   try {
@@ -313,6 +314,92 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const recharge = async (req, res) => {
+  try {
+    const { amount, currency } = req.body
+    const username = getAccess(req.headers["authorization"]);
+
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({
+      username: username,
+    });
+
+    if (!User) {
+      return res.status(401).send({
+        msg: "Not found user",
+      });
+    }
+
+    await wallet.create({
+      amount: amount,
+      currency: currency
+    })
+
+    return res.status(200).send({
+      msg: "Recharge succcess!!!",
+    });
+  }
+  catch (error) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+}
+
+const updateWallet = async (req, res) => {
+  try {
+    const { amount, currency } = req.body
+    const username = getAccess(req.headers["authorization"]);
+
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({
+      username: username,
+    });
+
+    if (!User) {
+      return res.status(401).send({
+        msg: "Not found user",
+      });
+    }
+
+    const Wallet = await wallet.find({
+      userID: User._id,
+      currency: currency
+    })
+
+    if (!Wallet) {
+      return res.status(401).send({
+        msg: "Not found wallet",
+      });
+    }
+
+    await wallet.findOneAndUpdate({
+      _id: Wallet._id,
+    }, {
+      amount: amount
+    })
+
+    return res.status(200).send({
+      msg: "Update wallet succcess!!!",
+    });
+  }
+  catch (error) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+}
+
 module.exports = {
   getUserDetails,
   editUserInfo,
@@ -321,4 +408,5 @@ module.exports = {
   // bookTrip,
   // cancleTrip,
   deleteUser,
+  recharge
 };

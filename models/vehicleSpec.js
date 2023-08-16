@@ -7,6 +7,9 @@ const VehicleSpecSchema = new mongoose.Schema({
   vehicleID: {
     type: String,
   },
+  type: {
+    type: String
+  },
   powers: {
     type: String,
   },
@@ -21,6 +24,9 @@ const VehicleSpecSchema = new mongoose.Schema({
   },
   maxSpeed: {
     type: Number,
+  },
+  numberConstructor: {
+    type: String
   }
 });
 

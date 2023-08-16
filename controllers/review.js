@@ -22,7 +22,7 @@ const getReviews = async (req, res) => {
 
       const User = await user.findOne({
         _id: contentID,
-        role: "driver",
+        role: "owner",
       });
       return res.status(200).send({
         reviews: await review.find({
@@ -59,10 +59,9 @@ const postReview = async (req, res) => {
         msg: "Not found user",
       });
     }
-    const Vehicle = vehicle.findOne({
-      id: typeID,
+    const Vehicle = await vehicle.findOne({
+      _id: typeID,
     });
-    console.log('1')
 
     // 
     const allCurrentReview = await review.find({ typeID: typeID });
@@ -78,6 +77,7 @@ const postReview = async (req, res) => {
       average = (total / scores.length).toFixed(2);
       return average
     }
+
     // 
     if (Vehicle) {
       review.create({
@@ -87,8 +87,6 @@ const postReview = async (req, res) => {
         rate: rate,
         content: content,
       });
-      console.log('1')
-
 
       // sum = allCurrentReview.forEach((val) => {
       //   val.rate.reduce(function (sum, item, index) {
@@ -100,51 +98,42 @@ const postReview = async (req, res) => {
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
-          role: "driver",
         },
         { rate: calculate() }
       );
-      console.log('4')
 
       return res.status(200).send({
         msg: "Review completed",
       });
     } else {
-      const Driver = await vehicle.findOne({
+      const Driver = await user.findOne({
         _id: typeID,
-        role: "driver",
-      });
-      console.log('5')
-
-      review.create({
-        userID: Driver._id,
-        type: type,
-        typeID: typeID,
-        rate: rate,
-        content: content,
+        role: "owner",
       });
 
-      // const allCurrentReview = await review.find({ typeID: typeID });
-      console.log('6')
+      if (Driver) {
+        review.create({
+          userID: User._id,
+          type: type,
+          typeID: typeID,
+          rate: rate,
+          content: content,
+        });
 
-      // sum = allCurrentReview.rate.reduce(function (sum, item, index) {
-      //   count += item;
-      //   return sum + item * (index + 1);
-      // }, 0);
-      console.log('7')
+        await user.findOneAndUpdate(
+          {
+            _id: typeID,
+            role: "owner",
+          },
+          { rate: calculate() }
+        );
 
-      await user.findOneAndUpdate(
-        {
-          _id: typeID,
-          role: "driver",
-        },
-        { rate: calculate() }
-      );
-      console.log('8')
+        return res.status(200).send({
+          msg: "Review completed",
+        });
+      }
 
-      return res.status(200).send({
-        msg: "Review completed",
-      });
+
     }
   } catch (error) {
     return res.status(500).send({
@@ -207,7 +196,7 @@ const editReview = async (req, res) => {
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
-          role: "driver",
+          role: "owner",
         },
         { rate: calculate() }
       );
@@ -274,7 +263,7 @@ const deleteReview = async (req, res) => {
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
-          role: "driver",
+          role: "owner",
         },
         { rate: calculate() }
       );

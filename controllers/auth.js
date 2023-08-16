@@ -41,7 +41,7 @@ const signup = async (req, res) => {
       address: address,
       phoneNumber: phoneNumber,
       createdDate: new Date(),
-      role: role || "client",
+      role: role || "customer",
     });
     return res.status(200).send({
       msg: "Created user success!!!",

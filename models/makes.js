@@ -7,6 +7,9 @@ const MakesSchema = new mongoose.Schema({
   make: {
     type: String,
   },
+  image: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model("Makes", MakesSchema);

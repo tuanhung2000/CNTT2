@@ -17,7 +17,7 @@ const VehicleSpecSchema = new mongoose.Schema({
     type: String,
   },
   consumption: {
-    type: String,
+    type: Number,
   },
   maxSpeed: {
     type: Number,

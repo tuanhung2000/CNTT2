@@ -18,16 +18,19 @@ const VehicleSchema = new mongoose.Schema({
   },
   rate: {
     type: String,
-    default: 0,
+    default: "0.0",
   },
-  type: {
-    type: String,
+  isSelfDrive: {
+    type: Boolean,
   },
   make: {
     type: String,
   },
   model: {
     type: String,
+  },
+  year: {
+    type: String
   },
   feature: {
     type: [String],

@@ -61,6 +61,7 @@ const createVehicle = async (req, res) => {
       insurance,
       consumption,
       maxSpeed,
+      numberConstructor
     } = req.body;
     const username = getAccess(req.headers["authorization"]);
     if (!username) {
@@ -136,7 +137,7 @@ const createVehicle = async (req, res) => {
       price: price,
       extraFee: extraFee,
       rate: "0.0",
-      type: type,
+
       make: make,
       model: model,
       year: year,
@@ -152,6 +153,8 @@ const createVehicle = async (req, res) => {
       insurance: insurance,
       consumption: consumption,
       maxSpeed: maxSpeed,
+      type: type,
+      numberConstructor: numberConstructor
     });
 
     return res

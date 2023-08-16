@@ -13,7 +13,9 @@ const vehicleSpec = require("../models/vehicleSpec");
 const getAllVehicle = async (req, res) => {
   try {
     const Vehicle = await vehicle.find({});
-    return res.status(200).send({ Vehicle });
+    const VehicleSpec = await vehicleSpec.find({});
+
+    return res.status(200).send({ Vehicle, VehicleSpec });
   } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",

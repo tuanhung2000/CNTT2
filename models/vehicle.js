@@ -41,6 +41,12 @@ const VehicleSchema = new mongoose.Schema({
   isAvailable: {
     type: Boolean,
     default: true
+  },
+  address: {
+    type: [String]
+  },
+  rent: {
+    type: Boolean
   }
 });
 

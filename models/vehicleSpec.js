@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 
 const VehicleSpecSchema = new mongoose.Schema({
-  driverID: {
-    type: String,
-  },
   vehicleID: {
     type: String,
   },
@@ -27,6 +24,9 @@ const VehicleSpecSchema = new mongoose.Schema({
   },
   numberConstructor: {
     type: String
+  },
+  seatNumbers: {
+    type: Number
   }
 });
 

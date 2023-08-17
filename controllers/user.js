@@ -238,6 +238,12 @@ const getHistoryList = async (req, res) => {
 //Admin
 const getAllUsers = async (req, res) => {
   try {
+    if (!req.headers["authorization"]) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {

@@ -13,9 +13,18 @@ const vehicleSpec = require("../models/vehicleSpec");
 const getAllVehicle = async (req, res) => {
   try {
     const Vehicle = await vehicle.find({});
-    const VehicleSpec = await vehicleSpec.find({});
+    const VehicleSpec = await vehicleSpec.find({})
+    // console.log(Vehicle)// 
+    const result = []
+    for (let i = 0; i < Vehicle.length; i++) {
+      const spec = await vehicleSpec.findOne({ vehicleID: Vehicle[i].id })
+      console.log(spec)
+      const newObj = Object.assign(spec, Vehicle[i])
+      result.push(newObj)
+    }
 
-    return res.status(200).send({ Vehicle, VehicleSpec });
+    // console.log(arr)
+    return res.status(200).send({ result });
   } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",
@@ -58,12 +67,16 @@ const createVehicle = async (req, res) => {
       year,
       feature,
       description,
+      address,
+      rent,
+      isSelfDrive,
       powers,
       fuelType,
       insurance,
       consumption,
       maxSpeed,
-      numberConstructor
+      numberConstructor,
+      seatNumbers
     } = req.body;
     const username = getAccess(req.headers["authorization"]);
     if (!username) {
@@ -139,16 +152,17 @@ const createVehicle = async (req, res) => {
       price: price,
       extraFee: extraFee,
       rate: "0.0",
-
+      address: address,
+      rent: rent,
       make: make,
       model: model,
       year: year,
       feature: feature,
       description: description,
+      isSelfDrive: isSelfDrive
     });
 
     const VehicleSpec = await vehicleSpec.create({
-      driverID: User._id,
       vehicleID: Vehicle._id,
       powers: powers,
       fuelType: fuelType,
@@ -156,7 +170,8 @@ const createVehicle = async (req, res) => {
       consumption: consumption,
       maxSpeed: maxSpeed,
       type: type,
-      numberConstructor: numberConstructor
+      numberConstructor: numberConstructor,
+      seatNumbers: seatNumbers
     });
 
     return res
@@ -245,6 +260,10 @@ const deleteVehicle = async (req, res) => {
     const onwedVehicle = await vehicle.findOne({
       _id: req.params.vehicleID,
     });
+
+    await vehicleSpec.findOneAndDelete({
+      vehicleID: onwedVehicle._id
+    })
 
     if (!onwedVehicle) {
       return res.status(401).send({

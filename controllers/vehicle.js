@@ -107,7 +107,7 @@ const createVehicle = async (req, res) => {
       isSelfDrive: true,
     });
 
-    if (selfDriveVehicle) {
+    if (selfDriveVehicle && isSelfDrive == true) {
       return res.status(401).send({
         msg: "Driver already have own self drive vehicle",
       });

@@ -11,15 +11,16 @@ const getReviews = async (req, res) => {
     const Vehicle = await vehicle.findOne({
       _id: contentID,
     });
+    console.log(Vehicle)
 
     if (Vehicle) {
+      console.log(Vehicle)
       return res.status(200).send({
         reviews: await review.find({
-          typeID: vehicle._id,
+          typeID: Vehicle._id,
         }),
       });
     } else {
-
       const User = await user.findOne({
         _id: contentID,
         role: "owner",

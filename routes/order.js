@@ -6,13 +6,16 @@ const {
     deleteOrder,
     responseOrder,
     getAllOrder,
+    getOwnedOrder
 } = require("../controllers/order");
 
 router.get("/all-orders", getAllOrder);
 
+router.get("/", getOwnedOrder);
+
 router.post("/requestOrder", requestOrder);
 
-router.post("/responseOrder", responseOrder);
+router.patch("/responseOrder", responseOrder);
 
 router.patch("/updateOrder", editOrder);
 

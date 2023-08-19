@@ -7,23 +7,35 @@ const vehicle = require("../models/vehicle");
 const vehicleList = require("../models/vehicleList");
 const makes = require("../models/makes");
 const models = require("../models/models");
+const order = require("../models/order");
 const { getAccess } = require("../config/getAccess");
 const vehicleSpec = require("../models/vehicleSpec");
+const { getReviews } = require("../controllers/review")
 
 const getAllVehicle = async (req, res) => {
   try {
     const Vehicle = await vehicle.find({});
-    const VehicleSpec = await vehicleSpec.find({})
-    // console.log(Vehicle)// 
-    const result = []
-    for (let i = 0; i < Vehicle.length; i++) {
-      const spec = await vehicleSpec.findOne({ vehicleID: Vehicle[i].id })
-      console.log(spec)
-      const newObj = Object.assign(spec, Vehicle[i])
-      result.push(newObj)
+
+    const Order = await order.find({
+      isCompleted: false
+    })
+
+    let result = []
+    for (let i = 0; i < Order.length; i++) {
+      let vehicleID = Order[i].vehicleID
+      console.log(i)
+      for (let j = 0; j < Vehicle.length; j++) {
+        if (Vehicle[j].id == Order[i].vehicleID) {
+          console.log(Vehicle[j].id, vehicleID)
+          result.push(Vehicle[j])
+          console.log(j)
+        } else {
+          console.log('.')
+        }
+      }
+
     }
 
-    // console.log(arr)
     return res.status(200).send({ result });
   } catch (error) {
     return res.status(500).send({
@@ -35,18 +47,65 @@ const getAllVehicle = async (req, res) => {
 const getVehicle = async (req, res) => {
   try {
     const Vehicle = await vehicle.findOne({ _id: req.params.vehicleID });
-    const VehicleSpec = await vehicleSpec.findOne({
-      vehicleID: req.params.vehicleID,
-    });
 
     if (!Vehicle) {
       return res.status(401).send({
         msg: "Not found vehicle",
       });
     }
+    const VehicleSpec = await vehicleSpec.findOne({
+      vehicleID: Vehicle._id,
+    });
 
-    return res.status(200).send({ Vehicle, VehicleSpec });
+    const owner = await user.findOne({
+      _id: Vehicle.driverID
+    })
+
+    const reviews = await getReviews(Vehicle._id)
+
+    return res.status(200).send({
+      vehicle: {
+        Vehicle,
+        VehicleSpec,
+      },
+      reviews: reviews,
+      owner: owner
+    });
   } catch (error) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
+const getOwnVehicle = async (req, res) => {
+  try {
+    const username = getAccess(req.headers["authorization"]);
+
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({ username: username });
+
+    if (!User) {
+      return res.status(401).send({
+        msg: "Not allowed",
+      });
+    }
+
+    const ownedVehicle = await vehicle.find({
+      driverID: User.id
+    })
+
+    return res.status(200).send({
+      ownedVehicle
+    })
+
+
+  } catch (e) {
     return res.status(500).send({
       msg: "Internal Server Error",
     });
@@ -205,11 +264,14 @@ const editVehicle = async (req, res) => {
         msg: "Not allowed",
       });
     }
-    const checkedVehicle = await vehicle.findById({
+
+    const ownedVehicle = await vehicle.findById({
       _id: req.params.vehicleID,
+      driverID: User.role != 'admin' ? User.id : ''
     });
 
-    if (!checkedVehicle) {
+
+    if (!ownedVehicle) {
       return res.status(401).send({
         msg: "Not found vehicle",
       });
@@ -247,6 +309,7 @@ const deleteVehicle = async (req, res) => {
         msg: "Authentication!!!",
       });
     }
+
     const User = await user.findOne({
       username: username,
     });
@@ -257,19 +320,20 @@ const deleteVehicle = async (req, res) => {
       });
     }
 
-    const onwedVehicle = await vehicle.findOne({
+    const ownedVehicle = await vehicle.findOne({
       _id: req.params.vehicleID,
+      driverID: User.role !== 'admin' ? User.id : ''
     });
 
-    await vehicleSpec.findOneAndDelete({
-      vehicleID: onwedVehicle._id
-    })
-
-    if (!onwedVehicle) {
+    if (!ownedVehicle) {
       return res.status(401).send({
         msg: "Not found vehicle",
       });
     }
+
+    await vehicleSpec.findOneAndDelete({
+      vehicleID: ownedVehicle._id
+    })
 
     await vehicle.findByIdAndDelete({
       _id: req.params.vehicleID,
@@ -277,7 +341,7 @@ const deleteVehicle = async (req, res) => {
 
     return res
       .status(200)
-      .send({ msg: "Delete vehicle successful", onwedVehicle });
+      .send({ msg: "Delete vehicle successful", ownedVehicle });
   } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",

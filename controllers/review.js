@@ -3,37 +3,23 @@ const user = require("../models/user");
 const vehicle = require("../models/vehicle");
 const review = require("../models/review");
 
-const getReviews = async (req, res) => {
+const getReviews = async (contentID) => {
   //all users can read by vehicle rate or driver rate
-  try {
-    const contentID = req.params.contentID;
+  const Vehicle = await vehicle.findOne({
+    _id: contentID,
+  });
 
-    const Vehicle = await vehicle.findOne({
-      _id: contentID,
+  if (Vehicle) {
+    return await review.find({
+      typeID: Vehicle._id,
     });
-    console.log(Vehicle)
-
-    if (Vehicle) {
-      console.log(Vehicle)
-      return res.status(200).send({
-        reviews: await review.find({
-          typeID: Vehicle._id,
-        }),
-      });
-    } else {
-      const User = await user.findOne({
-        _id: contentID,
-        role: "owner",
-      });
-      return res.status(200).send({
-        reviews: await review.find({
-          typeID: User._id,
-        }),
-      });
-    }
-  } catch (error) {
-    return res.status(500).send({
-      msg: "Internal Server Error",
+  } else {
+    const User = await user.findOne({
+      _id: contentID,
+      role: "owner",
+    });
+    return await review.find({
+      typeID: User._id,
     });
   }
 };
@@ -67,16 +53,19 @@ const postReview = async (req, res) => {
     // 
     const allCurrentReview = await review.find({ typeID: typeID });
     let scores = []
-    allCurrentReview.forEach((val) => {
-      scores.push(val.rate)
-    })
-    function calculate() {
-      var total = 0;
-      for (var i = 0; i < scores.length; i++) {
-        total += parseFloat(scores[i]);
+
+    if (allCurrentReview.length > 0) {
+      allCurrentReview.forEach((val) => {
+        scores.push(val.rate)
+      })
+      function calculate() {
+        var total = 0;
+        for (var i = 0; i < scores.length; i++) {
+          total += parseFloat(scores[i]);
+        }
+        average = (total / scores.length).toFixed(2);
+        return average
       }
-      average = (total / scores.length).toFixed(2);
-      return average
     }
 
     // 
@@ -89,18 +78,11 @@ const postReview = async (req, res) => {
         content: content,
       });
 
-      // sum = allCurrentReview.forEach((val) => {
-      //   val.rate.reduce(function (sum, item, index) {
-      //     count += item;
-      //     return sum + item * (index + 1);
-      //   }, 0);
-      // })
-
       await vehicle.findOneAndUpdate(
         {
           _id: typeID,
         },
-        { rate: calculate() }
+        { rate: allCurrentReview > 0 ? calculate() : rate }
       );
 
       return res.status(200).send({
@@ -111,7 +93,7 @@ const postReview = async (req, res) => {
         _id: typeID,
         role: "owner",
       });
-
+      console.log(Driver)
       if (Driver) {
         review.create({
           userID: User._id,
@@ -126,7 +108,7 @@ const postReview = async (req, res) => {
             _id: typeID,
             role: "owner",
           },
-          { rate: calculate() }
+          { rate: allCurrentReview > 0 ? calculate() : rate }
         );
 
         return res.status(200).send({

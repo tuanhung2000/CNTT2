@@ -5,6 +5,7 @@ const user = require("../models/user");
 const vehicle = require("../models/vehicle");
 const order = require("../models/order");
 const wallet = require("../models/wallet")
+const { getReviews } = require("../controllers/review")
 
 const getUserDetails = async (req, res) => {
   try {
@@ -35,6 +36,35 @@ const getUserDetails = async (req, res) => {
     });
   }
 };
+
+const getOWnerDetails = async (req, res) => {
+  try {
+    const ownerID = req.params.ownerID
+
+    const owner = await user.findOne({
+      _id: ownerID
+    })
+
+    if (!owner) {
+      return res.status(401).send({
+        msg: "Not found user",
+      });
+    }
+
+    const reviews = await getReviews(ownerID)
+
+    return res.status(200).send({
+      info: owner,
+      reviews: reviews
+    })
+
+  } catch (e) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+
+}
 
 const editUserInfo = async (req, res) => {
   try {
@@ -238,14 +268,7 @@ const getHistoryList = async (req, res) => {
 //Admin
 const getAllUsers = async (req, res) => {
   try {
-    if (!req.headers["authorization"]) {
-      return res.status(403).send({
-        msg: "Authentication!!!",
-      });
-    }
-
     const username = getAccess(req.headers["authorization"]);
-
     if (!username) {
       return res.status(403).send({
         msg: "Authentication!!!",
@@ -411,6 +434,8 @@ module.exports = {
   editUserInfo,
   getAllUsers,
   getHistoryList,
+  getOWnerDetails,
+
   // bookTrip,
   // cancleTrip,
   deleteUser,

@@ -5,6 +5,7 @@ const {
   editUserInfo,
   getAllUsers,
   getHistoryList,
+  getOWnerDetails,
   // bookTrip,
   // cancleTrip,
   deleteUser,
@@ -13,6 +14,8 @@ const {
 
 router.get("/details", getUserDetails).patch("/edit-info", editUserInfo);
 
+
+
 router.get("/all-users", getAllUsers);
 
 router.get("/history", getHistoryList);
@@ -20,5 +23,7 @@ router.get("/history", getHistoryList);
 router.delete("/", deleteUser);
 
 router.post("/recharge", recharge)
+
+router.get("/owner/:ownerID", getOWnerDetails);
 
 module.exports = router;

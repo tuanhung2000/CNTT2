@@ -364,10 +364,26 @@ const recharge = async (req, res) => {
       });
     }
 
-    await wallet.create({
-      amount: amount,
-      currency: currency
+    const Wallet = await wallet.findOne({
+      userID: User.id
     })
+
+    if (!Wallet) {
+      await wallet.create({
+        userID: User.id,
+        amount: amount,
+        currency: 'VND'
+      })
+    }
+
+    await wallet.findOneAndUpdate(
+      {
+        userID: User.id
+      },
+      {
+        amount: Wallet.amount + amount
+      }
+    )
 
     return res.status(200).send({
       msg: "Recharge succcess!!!",

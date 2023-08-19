@@ -8,10 +8,13 @@ const {
   deleteVehicle,
   createVehicleList,
   queryVehicle,
+  getOwnVehicle
 } = require("../controllers/vehicle");
 
 router
   .get("/", getAllVehicle)
+
+  .get("/owned", getOwnVehicle)
 
   .get("/vehicle_query", queryVehicle)
   .get("/:vehicleID", getVehicle)
@@ -21,4 +24,5 @@ router
 
   .patch("/:vehicleID", editVehicle)
   .delete("/:vehicleID", deleteVehicle);
+
 module.exports = router;

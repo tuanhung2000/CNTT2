@@ -4,6 +4,7 @@ const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
 const vehicle = require("../models/vehicle");
 const order = require("../models/order");
+const wallet = require("../models/wallet");
 
 const getAllOrder = async (req, res) => {
   try {
@@ -138,11 +139,15 @@ const requestOrder = async (req, res) => {
       });
     }
 
-    // if (Vehicle.isAvailable === false) {
-    //   return res.status(401).send({
-    //     msg: "Not available",
-    //   });
-    // }
+    const Wallet = await wallet.findOne({
+      userID: User.id
+    })
+
+    if (!Wallet || Wallet.amount - total < 0) {
+      return res.status(401).send({
+        msg: "User amount not enough!!",
+      });
+    }
 
     await order.create({
       vehicleID: vehicleID,
@@ -350,37 +355,80 @@ const responseOrder = async (req, res) => {
       });
     }
 
-    // if (Vehicle.isAvailable === true && Vehicle.isCompleted === true) {
-    //   return res.status(401).send({
-    //     msg: "Cannot response",
-    //   });
-    // }
+    if (Vehicle.isAvailable === true && Vehicle.isCompleted === true) {
+      return res.status(401).send({
+        msg: "Cannot response",
+      });
+    }
 
-    // if (isCompleted) {
-    //   await order.findByIdAndUpdate(
-    //     {
-    //       _id: orderID,
-    //     },
-    //     {
-    //       isCompleted: isCompleted,
-    //     }
-    //   );
-    // }
+    if (isCompleted) {
+      const userWallet = await wallet.findOne({
+        userID: Order.userID
+      })
 
-    // await vehicle.findByIdAndUpdate(
-    //   {
-    //     _id: orderID,
-    //   },
-    //   {
-    //     isAvailable: isAvailable,
-    //   }
-    // );
+      if (!userWallet || userWallet.amount - Order.total < 0) {
+        return res.status(401).send({
+          msg: "User amount not enough!!",
+        });
+      }
+
+      if (userWallet.amount - Order.total > 0) {
+        await order.findByIdAndUpdate(
+          {
+            _id: orderID,
+          },
+          {
+            isCompleted: isCompleted,
+          }
+        );
+
+        await wallet.findOneAndUpdate(
+          {
+            userID: Order.userID
+          },
+          {
+            amount: userWallet.amount - Order.total
+          }
+        )
+
+        const Vehicle = await vehicle.findOne({
+          _id: Order.vehicleID
+        })
+
+        const Driver = await user.findOne({
+          _id: Vehicle.driverID
+        })
+
+        const driverWallet = await Wallet.findOne({
+          userID: Driver.id
+        })
+
+        await wallet.findByIdAndUpdate(
+          {
+            _id: driverWallet.id
+          },
+          {
+            amount: driverWallet.amount + total
+          }
+        )
+
+        return res.status(200).send({
+          msg: "Completed",
+        });
+      }
+    }
+
+    await vehicle.findByIdAndUpdate(
+      {
+        _id: orderID,
+      },
+      {
+        isAvailable: isAvailable,
+      }
+    );
 
     return res.status(200).send({
       msg: "Success!!",
-      Order,
-      Vehicle,
-      User
     });
   } catch (error) {
     return res.status(500).send({

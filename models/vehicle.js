@@ -47,6 +47,10 @@ const VehicleSchema = new mongoose.Schema({
   },
   rent: {
     type: Boolean
+  },
+  isAccepted: {
+    type: Boolean,
+    default: false
   }
 });
 

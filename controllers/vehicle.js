@@ -22,18 +22,11 @@ const getAllVehicle = async (req, res) => {
 
     let result = []
     for (let i = 0; i < Order.length; i++) {
-      let vehicleID = Order[i].vehicleID
-      console.log(i)
       for (let j = 0; j < Vehicle.length; j++) {
         if (Vehicle[j].id == Order[i].vehicleID) {
-          console.log(Vehicle[j].id, vehicleID)
           result.push(Vehicle[j])
-          console.log(j)
-        } else {
-          console.log('.')
         }
       }
-
     }
 
     return res.status(200).send({ result });
@@ -407,4 +400,5 @@ module.exports = {
   deleteVehicle,
   createVehicleList,
   queryVehicle,
+  getOwnVehicle
 };

@@ -149,6 +149,15 @@ const requestOrder = async (req, res) => {
       });
     }
 
+    await vehicle.findByIdAndUpdate(
+      {
+        _id: vehicleID
+      },
+      {
+        isAvailable: false
+      }
+    )
+
     await order.create({
       vehicleID: vehicleID,
       userID: User._id,
@@ -312,7 +321,7 @@ const deleteOrder = async (req, res) => {
 
 const responseOrder = async (req, res) => {
   try {
-    const { vehicleID, orderID, isAvailable, isCompleted } = req.body;
+    const { vehicleID, orderID, isAccepted, isCompleted } = req.body;
 
     const username = getAccess(req.headers["authorization"]);
 
@@ -399,7 +408,7 @@ const responseOrder = async (req, res) => {
           _id: Vehicle.driverID
         })
 
-        const driverWallet = await Wallet.findOne({
+        const driverWallet = await wallet.findOne({
           userID: Driver.id
         })
 
@@ -412,6 +421,17 @@ const responseOrder = async (req, res) => {
           }
         )
 
+
+        await vehicle.findByIdAndUpdate(
+          {
+            _id: vehicleID
+          },
+          {
+            isAvailable: true,
+            isAccepted: false
+          }
+        )
+
         return res.status(200).send({
           msg: "Completed",
         });
@@ -420,10 +440,10 @@ const responseOrder = async (req, res) => {
 
     await vehicle.findByIdAndUpdate(
       {
-        _id: orderID,
+        _id: vehicleID,
       },
       {
-        isAvailable: isAvailable,
+        isAccepted: isAccepted,
       }
     );
 

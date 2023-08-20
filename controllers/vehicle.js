@@ -10,26 +10,38 @@ const models = require("../models/models");
 const order = require("../models/order");
 const { getAccess } = require("../config/getAccess");
 const vehicleSpec = require("../models/vehicleSpec");
-const { getReviews } = require("../controllers/review")
+const { getReviews } = require("../controllers/review");
 
 const getAllVehicle = async (req, res) => {
   try {
-    const Vehicle = await vehicle.find({});
 
-    const Order = await order.find({
-      isCompleted: false
+    const username = getAccess(req.headers["authorization"]);
+    const User = await user.find({
+      username: username
     })
 
-    let result = []
-    for (let i = 0; i < Order.length; i++) {
-      for (let j = 0; j < Vehicle.length; j++) {
-        if (Vehicle[j].id == Order[i].vehicleID) {
-          result.push(Vehicle[j])
-        }
-      }
+    if (username && User.role === 'admin') {
+      return res.status(200).send({
+        vehicleList: await vehicle.find({})
+      })
     }
 
-    return res.status(200).send({ result });
+
+    const Vehicle = await vehicle.find({ isAvailable: true });
+    let result = []
+    for (let i = 0; i < Vehicle.length; i++) {
+      const newObjc = Object.assign({
+        spec: await vehicleSpec.findOne({
+          vehicleID: Vehicle[i].id
+        }),
+        vehicle: Vehicle[i]
+      },
+
+      )
+      result.push(newObjc)
+    }
+
+    return res.status(200).send({ vehicleList: result });
   } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",

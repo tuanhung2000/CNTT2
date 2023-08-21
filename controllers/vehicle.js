@@ -14,31 +14,27 @@ const { getReviews } = require("../controllers/review");
 
 const getAllVehicle = async (req, res) => {
   try {
-
     const username = getAccess(req.headers["authorization"]);
-    const User = await user.find({
-      username: username
-    })
-
-    if (username && User.role === 'admin') {
-      return res.status(200).send({
-        vehicleList: await vehicle.find({})
-      })
+    if (username) {
+      const User = await user.find({
+        username: username,
+      });
+      if (User.role === "admin") {
+        return res.status(200).send({
+          vehicleList: await vehicle.find({}),
+        });
+      }
     }
-
-
     const Vehicle = await vehicle.find({ isAvailable: true });
-    let result = []
+    let result = [];
     for (let i = 0; i < Vehicle.length; i++) {
       const newObjc = Object.assign({
         spec: await vehicleSpec.findOne({
-          vehicleID: Vehicle[i].id
+          vehicleID: Vehicle[i].id,
         }),
-        vehicle: Vehicle[i]
-      },
-
-      )
-      result.push(newObjc)
+        vehicle: Vehicle[i],
+      });
+      result.push(newObjc);
     }
 
     return res.status(200).send({ vehicleList: result });
@@ -63,10 +59,14 @@ const getVehicle = async (req, res) => {
     });
 
     const owner = await user.findOne({
-      _id: Vehicle.driverID
-    })
+      _id: Vehicle.driverID,
+    });
 
-    const reviews = await getReviews(Vehicle._id)
+    const reviews = await getReviews(Vehicle._id);
+    const Order = await order.find({
+      vehicleID: Vehicle._id,
+      isCompleted: true,
+    });
 
     return res.status(200).send({
       vehicle: {
@@ -74,7 +74,8 @@ const getVehicle = async (req, res) => {
         VehicleSpec,
       },
       reviews: reviews,
-      owner: owner
+      owner: owner,
+      orderCount: Order.length,
     });
   } catch (error) {
     return res.status(500).send({
@@ -102,14 +103,12 @@ const getOwnVehicle = async (req, res) => {
     }
 
     const ownedVehicle = await vehicle.find({
-      driverID: User.id
-    })
+      driverID: User.id,
+    });
 
     return res.status(200).send({
-      ownedVehicle
-    })
-
-
+      ownedVehicle,
+    });
   } catch (e) {
     return res.status(500).send({
       msg: "Internal Server Error",
@@ -140,7 +139,7 @@ const createVehicle = async (req, res) => {
       consumption,
       maxSpeed,
       numberConstructor,
-      seatNumbers
+      seatNumbers,
     } = req.body;
     const username = getAccess(req.headers["authorization"]);
     if (!username) {
@@ -182,8 +181,6 @@ const createVehicle = async (req, res) => {
     // });
     // console.log('6')
 
-
-
     // const highestMakeID = await makes.find({}).sort({ ID: -1 }).limit(1);
 
     // if (!Make) {
@@ -223,7 +220,7 @@ const createVehicle = async (req, res) => {
       year: year,
       feature: feature,
       description: description,
-      isSelfDrive: isSelfDrive
+      isSelfDrive: isSelfDrive,
     });
 
     const VehicleSpec = await vehicleSpec.create({
@@ -235,7 +232,7 @@ const createVehicle = async (req, res) => {
       maxSpeed: maxSpeed,
       type: type,
       numberConstructor: numberConstructor,
-      seatNumbers: seatNumbers
+      seatNumbers: seatNumbers,
     });
 
     return res
@@ -272,9 +269,8 @@ const editVehicle = async (req, res) => {
 
     const ownedVehicle = await vehicle.findById({
       _id: req.params.vehicleID,
-      driverID: User.role != 'admin' ? User.id : ''
+      driverID: User.role != "admin" ? User.id : "",
     });
-
 
     if (!ownedVehicle) {
       return res.status(401).send({
@@ -327,7 +323,7 @@ const deleteVehicle = async (req, res) => {
 
     const ownedVehicle = await vehicle.findOne({
       _id: req.params.vehicleID,
-      driverID: User.role !== 'admin' ? User.id : ''
+      driverID: User.role !== "admin" ? User.id : "",
     });
 
     if (!ownedVehicle) {
@@ -337,8 +333,8 @@ const deleteVehicle = async (req, res) => {
     }
 
     await vehicleSpec.findOneAndDelete({
-      vehicleID: ownedVehicle._id
-    })
+      vehicleID: ownedVehicle._id,
+    });
 
     await vehicle.findByIdAndDelete({
       _id: req.params.vehicleID,
@@ -412,5 +408,5 @@ module.exports = {
   deleteVehicle,
   createVehicleList,
   queryVehicle,
-  getOwnVehicle
+  getOwnVehicle,
 };

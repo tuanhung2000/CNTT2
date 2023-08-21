@@ -4,8 +4,8 @@ const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
 const vehicle = require("../models/vehicle");
 const order = require("../models/order");
-const wallet = require("../models/wallet")
-const { getReviews } = require("../controllers/review")
+const wallet = require("../models/wallet");
+const { getReviews } = require("../controllers/review");
 
 const getUserDetails = async (req, res) => {
   try {
@@ -39,11 +39,11 @@ const getUserDetails = async (req, res) => {
 
 const getOWnerDetails = async (req, res) => {
   try {
-    const ownerID = req.params.ownerID
+    const ownerID = req.params.ownerID;
 
     const owner = await user.findOne({
-      _id: ownerID
-    })
+      _id: ownerID,
+    });
 
     if (!owner) {
       return res.status(401).send({
@@ -51,20 +51,18 @@ const getOWnerDetails = async (req, res) => {
       });
     }
 
-    const reviews = await getReviews(ownerID)
+    const reviews = await getReviews(ownerID);
 
     return res.status(200).send({
       info: owner,
-      reviews: reviews
-    })
-
+      reviews: reviews,
+    });
   } catch (e) {
     return res.status(500).send({
       msg: "Internal Server Error",
     });
   }
-
-}
+};
 
 const editUserInfo = async (req, res) => {
   try {
@@ -295,7 +293,6 @@ const getAllUsers = async (req, res) => {
     return res.status(200).send({
       allUsers,
     });
-
   } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",
@@ -345,7 +342,7 @@ const deleteUser = async (req, res) => {
 
 const recharge = async (req, res) => {
   try {
-    const { amount, currency } = req.body
+    const { amount, currency } = req.body;
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
@@ -365,40 +362,39 @@ const recharge = async (req, res) => {
     }
 
     const Wallet = await wallet.findOne({
-      userID: User.id
-    })
+      userID: User.id,
+    });
 
     if (!Wallet) {
       await wallet.create({
         userID: User.id,
         amount: amount,
-        currency: 'VND'
-      })
+        currency: "VND",
+      });
     }
 
     await wallet.findOneAndUpdate(
       {
-        userID: User.id
+        userID: User.id,
       },
       {
-        amount: Wallet.amount + amount
+        amount: Wallet.amount + amount,
       }
-    )
+    );
 
     return res.status(200).send({
       msg: "Recharge succcess!!!",
     });
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",
     });
   }
-}
+};
 
 const updateWallet = async (req, res) => {
   try {
-    const { amount, currency } = req.body
+    const { amount, currency } = req.body;
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
@@ -419,8 +415,8 @@ const updateWallet = async (req, res) => {
 
     const Wallet = await wallet.find({
       userID: User._id,
-      currency: currency
-    })
+      currency: currency,
+    });
 
     if (!Wallet) {
       return res.status(401).send({
@@ -428,22 +424,75 @@ const updateWallet = async (req, res) => {
       });
     }
 
-    await wallet.findOneAndUpdate({
-      _id: Wallet._id,
-    }, {
-      amount: amount
-    })
+    await wallet.findOneAndUpdate(
+      {
+        _id: Wallet._id,
+      },
+      {
+        amount: amount,
+      }
+    );
 
     return res.status(200).send({
       msg: "Update wallet succcess!!!",
     });
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(500).send({
       msg: "Internal Server Error",
     });
   }
-}
+};
+
+//Admin
+const responseNewVehicle = async (req, res) => {
+  try {
+    const { vehicleID } = req.body;
+    const username = getAccess(req.headers["authorization"]);
+
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({
+      username: username,
+    });
+
+    if (!User || User.role !== "admin") {
+      return res.status(401).send({
+        msg: "Not found user or not allowed",
+      });
+    }
+
+    const Vehicle = await vehicle.findOne({
+      _id: vehicleID,
+    });
+
+    if (!Vehicle) {
+      return res.status(401).send({
+        msg: "Not found vehicle",
+      });
+    }
+
+    await vehicle.findByIdAndUpdate(
+      {
+        _id: vehicleID,
+      },
+      {
+        isAccepted: true,
+      }
+    );
+
+    return res.status(200).send({
+      msg: "Vehicle added!!!",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
   getUserDetails,
@@ -455,5 +504,6 @@ module.exports = {
   // bookTrip,
   // cancleTrip,
   deleteUser,
-  recharge
+  recharge,
+  responseNewVehicle
 };

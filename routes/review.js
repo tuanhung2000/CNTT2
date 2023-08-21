@@ -1,13 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const {
-    getReviews,
-    postReview,
-    editReview,
-    deleteReview,
+  postReview,
+  editReview,
+  deleteReview,
 } = require("../controllers/review");
-
-router.get("/:contentID", getReviews);
 
 router.post("/", postReview);
 

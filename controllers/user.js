@@ -21,6 +21,10 @@ const getUserDetails = async (req, res) => {
       username: username,
     });
 
+    const Wallet = await wallet.findOne({
+      userID: User.id,
+    });
+
     if (!User) {
       return res.status(401).send({
         msg: "Not found user",
@@ -29,6 +33,7 @@ const getUserDetails = async (req, res) => {
 
     return res.status(200).send({
       User,
+      Wallet,
     });
   } catch (error) {
     return res.status(500).send({
@@ -505,5 +510,5 @@ module.exports = {
   // cancleTrip,
   deleteUser,
   recharge,
-  responseNewVehicle
+  responseNewVehicle,
 };

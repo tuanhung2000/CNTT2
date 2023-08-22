@@ -4,6 +4,9 @@ const ReviewSchema = new mongoose.Schema({
   userID: {
     type: String,
   },
+  fullname: {
+    type: String,
+  },
   type: {
     type: String,
   },

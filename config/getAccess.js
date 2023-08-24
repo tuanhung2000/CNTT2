@@ -2,7 +2,6 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 const getAccess = (value) => {
-  console.log(value);
   if (typeof value === "undefined" || value == "") {
     return false;
   }

@@ -347,7 +347,7 @@ const deleteUser = async (req, res) => {
 
 const recharge = async (req, res) => {
   try {
-    const { amount, currency } = req.body;
+    const { amount } = req.body;
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
@@ -374,7 +374,6 @@ const recharge = async (req, res) => {
       await wallet.create({
         userID: User.id,
         amount: amount,
-        currency: "VND",
       });
     }
 
@@ -399,7 +398,7 @@ const recharge = async (req, res) => {
 
 const updateWallet = async (req, res) => {
   try {
-    const { amount, currency } = req.body;
+    const { amount } = req.body;
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
@@ -420,7 +419,6 @@ const updateWallet = async (req, res) => {
 
     const Wallet = await wallet.find({
       userID: User._id,
-      currency: currency,
     });
 
     if (!Wallet) {

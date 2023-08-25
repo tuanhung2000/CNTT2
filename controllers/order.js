@@ -331,12 +331,14 @@ const responseOrder = async (req, res) => {
     const { vehicleID, orderID, isResponse } = req.body;
 
     const username = getAccess(req.headers["authorization"]);
+    console.log("???24");
 
     if (!username) {
       return res.status(403).send({
         msg: "Authentication!!!",
       });
     }
+    console.log("???1");
 
     const Order = await order.findOne({
       _id: orderID,
@@ -347,6 +349,7 @@ const responseOrder = async (req, res) => {
         msg: "Not found order",
       });
     }
+    console.log("???2");
 
     const Vehicle = await vehicle.findOne({
       _id: vehicleID,
@@ -360,26 +363,34 @@ const responseOrder = async (req, res) => {
 
     const User = await user.findOne({
       username: username,
-      _id: Vehicle.driverID,
     });
 
-    if (!User) {
+    if (!User && User.role != "owner") {
       return res.status(401).send({
-        msg: "Not found user",
+        msg: "Not found user or not allowed",
       });
     }
-
     const userWallet = await wallet.findOne({
       userID: Order.userID,
     });
+    if (!userWallet) {
+      return res.statue(401).send({
+        msg: "User amount not enough",
+      });
+    }
 
     const ownerWallet = await wallet.findOne({
       userID: Vehicle.driverID,
     });
 
-    const userAmount = userWallet.amount - Order.total;
-    const ownerAmount = ownerWallet.amount + Order.total;
-
+    if (!ownerWallet) {
+      await wallet.create({
+        userID: Vehicle.driverID,
+        amount: parseInt(Order.total),
+      });
+    }
+    const userAmount = userWallet.amount - parseInt(Order.total);
+    const ownerAmount = ownerWallet.amount + parseInt(Order.total);
     if (!Vehicle.isAvailable) {
       return res.status(401).send({
         msg: "Vehicle not available!!!",
@@ -544,5 +555,4 @@ module.exports = {
   getAllOrder,
   getOwnedOrder,
   completeOrder,
-  getUserOrder,
 };

@@ -25,7 +25,7 @@ const getAllVehicle = async (req, res) => {
         });
       }
     }
-    const Vehicle = await vehicle.find({ isAvailable: true });
+    const Vehicle = await vehicle.find({ isAvailable: true, isAccepted: true });
     let result = [];
     for (let i = 0; i < Vehicle.length; i++) {
       const newObjc = Object.assign({

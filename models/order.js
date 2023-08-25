@@ -34,6 +34,7 @@ const OrderSchema = new mongoose.Schema({
   },
   isResponse: {
     type: String,
+    default: false,
   },
   isHandle: {
     type: Boolean,

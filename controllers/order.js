@@ -84,18 +84,10 @@ const getOwnedOrder = async (req, res) => {
       const orderList = await order.find({});
 
       for (let i = 0; i < vehicleList.length; i++) {
-        // for (let j = 0; j < orderList.length; j++) {
-        //   if (vehicleList[i].id == orderList[j].vehicleID) {
-
-        //   }
-        // }
-
         orderList.filter((order) => {
           return order.vehicleID == vehicleList[i].id;
         });
       }
-
-      console.log(orderList);
 
       // const driverOrder = await
       return res.status(200).send({
@@ -552,4 +544,5 @@ module.exports = {
   getAllOrder,
   getOwnedOrder,
   completeOrder,
+  getUserOrder,
 };

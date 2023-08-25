@@ -71,7 +71,7 @@ const getOWnerDetails = async (req, res) => {
 
 const editUserInfo = async (req, res) => {
   try {
-    const { firstName, lastName, address, phoneNumber } = req.body;
+    const { firstName, lastName, address, phoneNumber, userID } = req.body;
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
@@ -91,6 +91,20 @@ const editUserInfo = async (req, res) => {
     }
 
     if (User.role == "admin") {
+      if (userID) {
+        await user.findOneAndUpdate(
+          { _id: userID },
+          {
+            firstName: firstName,
+            lastName: lastName,
+            address: address,
+            phoneNumber: phoneNumber,
+          }
+        );
+        return res.status(200).send({
+          msg: "Update user infomation success!!!",
+        });
+      }
       await user.findByIdAndUpdate(
         {
           _id: User._id,

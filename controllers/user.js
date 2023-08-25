@@ -143,6 +143,38 @@ const editUserInfo = async (req, res) => {
   }
 };
 
+const getNewVehicles = async (req, res) => {
+  try {
+    const username = getAccess(req.headers["authorization"]);
+
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({
+      username: username,
+    });
+
+    if (!User || User.role != "admin") {
+      return res.status(401).send({
+        msg: "Not found user || not allowed",
+      });
+    }
+
+    return res.status(200).send({
+      vehicles: await vehicle.find({
+        isAccepted: false,
+      }),
+    });
+  } catch (error) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
 const getHistoryList = async (req, res) => {
   try {
     const { firstName, lastName, address, phoneNumber } = req.body;
@@ -523,4 +555,5 @@ module.exports = {
   deleteUser,
   recharge,
   responseNewVehicle,
+  getNewVehicles,
 };

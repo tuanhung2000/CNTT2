@@ -331,14 +331,12 @@ const responseOrder = async (req, res) => {
     const { vehicleID, orderID, isResponse } = req.body;
 
     const username = getAccess(req.headers["authorization"]);
-    console.log("???24");
 
     if (!username) {
       return res.status(403).send({
         msg: "Authentication!!!",
       });
     }
-    console.log("???1");
 
     const Order = await order.findOne({
       _id: orderID,
@@ -349,7 +347,6 @@ const responseOrder = async (req, res) => {
         msg: "Not found order",
       });
     }
-    console.log("???2");
 
     const Vehicle = await vehicle.findOne({
       _id: vehicleID,
@@ -415,7 +412,7 @@ const responseOrder = async (req, res) => {
       //owner
       await wallet.findOneAndUpdate(
         {
-          _id: Order.userID,
+          _id: Vehicle.driverID,
         },
         {
           amount: ownerAmount,

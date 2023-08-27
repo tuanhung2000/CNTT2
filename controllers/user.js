@@ -495,7 +495,7 @@ const updateWallet = async (req, res) => {
 //Admin
 const responseNewVehicle = async (req, res) => {
   try {
-    const { vehicleID } = req.body;
+    const { vehicleID, isAccepted } = req.body;
     const username = getAccess(req.headers["authorization"]);
 
     if (!username) {
@@ -529,7 +529,7 @@ const responseNewVehicle = async (req, res) => {
         _id: vehicleID,
       },
       {
-        isAccepted: true,
+        isAccepted: isAccepted,
       }
     );
 

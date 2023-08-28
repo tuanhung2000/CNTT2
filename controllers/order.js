@@ -73,35 +73,42 @@ const getOwnedOrder = async (req, res) => {
       });
     }
 
+    if (User.role != "owner") {
+      let Order = await order.find({
+        userID: User.id,
+      });
+
+      const VehicleList = [];
+      const DriverList = [];
+      const getVehicleList = async () => {
+        for (let i = 0; i < Order.length; i++) {
+          let ve = await vehicle.findOne({
+            _id: Order[i].vehicleID,
+          });
+          VehicleList.push(ve);
+        }
+        return VehicleList;
+      };
+
+      const getDriverList = async () => {
+        for (let i = 0; i < Order.length; i++) {
+          let ve = await user.findOne({
+            _id: Order[i].driverID,
+          });
+          DriverList.push(ve);
+        }
+        return DriverList;
+      };
+
+      return res.status(200).send({
+        orders: Order,
+        VehicleList: await getVehicleList(),
+        DriverList: await getDriverList(),
+      });
+    }
     let Order = await order.find({
       driverID: User.id,
     });
-
-    if (User.role != "owner") {
-      const vehicleList = await vehicle.find({
-        driverID: User.id,
-      });
-      const orderList = await order.find({});
-
-      for (let i = 0; i < vehicleList.length; i++) {
-        orderList.filter((order) => {
-          return order.vehicleID == vehicleList[i].id;
-        });
-      }
-
-      return res.status(200).send({
-        orders: await order.find({}),
-      });
-    }
-
-    // Order.forEach(async (el) => {
-    //   Object.assign(el, {
-    //     userInfo: await user.findOne({
-    //       _id: el.userID,
-    //     }),
-    //   });
-    // });
-    // console.log(Order);
 
     const VehicleList = [];
     const UserList = [];

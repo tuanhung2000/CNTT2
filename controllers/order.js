@@ -73,11 +73,11 @@ const getOwnedOrder = async (req, res) => {
       });
     }
 
-    const Order = await order.find({
-      userID: User.id,
+    let Order = await order.find({
+      driverID: User.id,
     });
 
-    if (!Order) {
+    if (User.role != "owner") {
       const vehicleList = await vehicle.find({
         driverID: User.id,
       });
@@ -89,14 +89,46 @@ const getOwnedOrder = async (req, res) => {
         });
       }
 
-      // const driverOrder = await
       return res.status(200).send({
         orders: await order.find({}),
       });
     }
 
+    // Order.forEach(async (el) => {
+    //   Object.assign(el, {
+    //     userInfo: await user.findOne({
+    //       _id: el.userID,
+    //     }),
+    //   });
+    // });
+    // console.log(Order);
+
+    const VehicleList = [];
+    const UserList = [];
+    const getVehicleList = async () => {
+      for (let i = 0; i < Order.length; i++) {
+        let ve = await vehicle.findOne({
+          _id: Order[i].vehicleID,
+        });
+        VehicleList.push(ve);
+      }
+      return VehicleList;
+    };
+
+    const getUserList = async () => {
+      for (let i = 0; i < Order.length; i++) {
+        let ve = await user.findOne({
+          _id: Order[i].userID,
+        });
+        UserList.push(ve);
+      }
+      return UserList;
+    };
+
     return res.status(200).send({
-      orders: await order.find({}),
+      orders: Order,
+      vehicleList: await getVehicleList(),
+      userList: await getUserList(),
     });
   } catch (e) {
     return res.status(500).send({
@@ -158,6 +190,7 @@ const requestOrder = async (req, res) => {
 
     await order.create({
       vehicleID: vehicleID,
+      driverID: Vehicle.driverID,
       userID: User._id,
       from: from,
       to: to,

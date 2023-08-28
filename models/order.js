@@ -16,6 +16,9 @@ const OrderSchema = new mongoose.Schema({
   vehicleID: {
     type: String,
   },
+  driverID: {
+    type: String,
+  },
   serviceType: {
     type: String,
   },

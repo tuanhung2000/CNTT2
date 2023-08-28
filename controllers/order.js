@@ -428,9 +428,7 @@ const responseOrder = async (req, res) => {
       });
     }
     const userAmount = userWallet.amount - parseInt(Order.total);
-    console.log(userAmount);
     const ownerAmount = ownerWallet.amount + parseInt(Order.total);
-    console.log(ownerAmount);
     if (!Vehicle.isAvailable) {
       return res.status(401).send({
         msg: "Vehicle not available!!!",
@@ -482,7 +480,7 @@ const responseOrder = async (req, res) => {
               _id: or._id,
             },
             {
-              isHanlde: true,
+              isHandle: true,
               isResponse: false,
             }
           );
@@ -491,10 +489,10 @@ const responseOrder = async (req, res) => {
     }
     await order.findOneAndUpdate(
       {
-        _id: Order._id,
+        _id: Order.id,
       },
       {
-        isHanlde: true,
+        isHandle: true,
         isResponse: isResponse,
       }
     );

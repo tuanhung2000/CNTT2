@@ -36,7 +36,7 @@ const OrderSchema = new mongoose.Schema({
     default: false,
   },
   isResponse: {
-    type: String,
+    type: Boolean,
     default: false,
   },
   isHandle: {

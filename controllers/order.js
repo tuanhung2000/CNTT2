@@ -156,15 +156,6 @@ const requestOrder = async (req, res) => {
       });
     }
 
-    await vehicle.findByIdAndUpdate(
-      {
-        _id: vehicleID,
-      },
-      {
-        isAvailable: false,
-      }
-    );
-
     await order.create({
       vehicleID: vehicleID,
       userID: User._id,
@@ -341,6 +332,16 @@ const responseOrder = async (req, res) => {
     const Order = await order.findOne({
       _id: orderID,
     });
+
+    const customer = await user.find({
+      _id: Order.userID,
+    });
+
+    if (!customer) {
+      return res.status(401).send({
+        msg: "Not found user",
+      });
+    }
 
     if (!Order) {
       return res.status(401).send({

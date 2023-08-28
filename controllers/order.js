@@ -444,7 +444,7 @@ const responseOrder = async (req, res) => {
       //user
       await wallet.findOneAndUpdate(
         {
-          _id: Order.userID,
+          userID: Order.userID,
         },
         {
           amount: userAmount,

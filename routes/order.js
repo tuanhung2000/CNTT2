@@ -8,11 +8,14 @@ const {
   getAllOrder,
   getOwnedOrder,
   completeOrder,
+  getCurrentOrder,
 } = require("../controllers/order");
 
 router.get("/all-orders", getAllOrder);
 
 router.get("/", getOwnedOrder);
+
+router.get("/currentOrder", getCurrentOrder);
 
 router.post("/requestOrder", requestOrder);
 

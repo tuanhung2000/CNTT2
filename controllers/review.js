@@ -97,7 +97,7 @@ const postReview = async (req, res) => {
       if (Driver) {
         review.create({
           userID: User._id,
-          fullname: User.firstName + User.lastName,
+          fullname: User.firstName + " " + User.lastName,
           type: type,
           typeID: typeID,
           rate: rate,

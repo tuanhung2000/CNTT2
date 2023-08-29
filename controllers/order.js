@@ -144,6 +144,47 @@ const getOwnedOrder = async (req, res) => {
   }
 };
 
+const getCurrentOrder = async (req, res) => {
+  try {
+    const username = getAccess(req.headers["authorization"]);
+
+    if (!username) {
+      return res.status(403).send({
+        msg: "Authentication!!!",
+      });
+    }
+
+    const User = await user.findOne({
+      username: username,
+    });
+
+    if (!User) {
+      return res.status(401).send({
+        msg: "Not found user",
+      });
+    }
+    const Order = await order.findOne({
+      userID: User._id,
+      isCompleted: false,
+      isHandle: true,
+      isResponse: true,
+    });
+
+    const Vehicle = await vehicle.findOne({
+      _id: Order.vehicleID,
+    });
+
+    return res.status(200).send({
+      orders: Order,
+      vehicles: Vehicle,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
 const requestOrder = async (req, res) => {
   try {
     const {
@@ -462,7 +503,7 @@ const responseOrder = async (req, res) => {
 
       await vehicle.findOneAndUpdate(
         {
-          userID: vehicleID,
+          _id: vehicleID,
         },
         {
           isAvailable: false,
@@ -574,6 +615,14 @@ const completeOrder = async (req, res) => {
         isCompleted: isCompleted,
       }
     );
+    await vehicle.findOneAndUpdate(
+      {
+        _id: Vehicle.id,
+      },
+      {
+        isAvailable: true,
+      }
+    );
     return res.status(200).send({
       msg: "Order completed!!!",
       order: Order,
@@ -593,4 +642,5 @@ module.exports = {
   getAllOrder,
   getOwnedOrder,
   completeOrder,
+  getCurrentOrder,
 };

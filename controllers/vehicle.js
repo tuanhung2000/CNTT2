@@ -25,6 +25,7 @@ const getAllVehicle = async (req, res) => {
         });
       }
     }
+
     const Vehicle = await vehicle.find({ isAvailable: true, isAccepted: true });
     let result = [];
     for (let i = 0; i < Vehicle.length; i++) {
@@ -47,7 +48,8 @@ const getAllVehicle = async (req, res) => {
 
 const getVehicle = async (req, res) => {
   try {
-    const Vehicle = await vehicle.findOne({ _id: req.params.vehicleID });
+    const ID = req.params.vehicleID;
+    const Vehicle = await vehicle.findOne({ _id: ID });
 
     if (!Vehicle) {
       return res.status(401).send({

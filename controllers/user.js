@@ -2,10 +2,13 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { getAccess } = require("../config/getAccess");
 const user = require("../models/user");
+const account = require("../models/account");
 const vehicle = require("../models/vehicle");
+const vehicleSpec = require("../models/vehicleSpec");
 const order = require("../models/order");
 const wallet = require("../models/wallet");
 const { getReviews } = require("../controllers/review");
+const review = require("../models/review");
 
 const getUserDetails = async (req, res) => {
   try {
@@ -175,145 +178,6 @@ const getNewVehicles = async (req, res) => {
   }
 };
 
-const getHistoryList = async (req, res) => {
-  try {
-    const { firstName, lastName, address, phoneNumber } = req.body;
-    const username = getAccess(req.headers["authorization"]);
-
-    if (!username) {
-      return res.status(403).send({
-        msg: "Authentication!!!",
-      });
-    }
-
-    const User = await user.findOne({
-      username: username,
-    });
-
-    if (!User) {
-      return res.status(401).send({
-        msg: "Not found user",
-      });
-    }
-    const Order = await order.find({
-      userID: User._id,
-    });
-
-    return res.status(200).send({
-      Order,
-    });
-  } catch (error) {
-    return res.status(500).send({
-      msg: "Internal Server Error",
-    });
-  }
-};
-
-// const bookTrip = async (req, res) => {
-//   try {
-//     const {
-//       address,
-//       start,
-//       end,
-//       vehicleID,
-//       serviceType,
-//       clientRequire,
-//       total,
-//     } = req.body;
-//     const username = getAccess(req.headers["authorization"]);
-
-//     if (!username) {
-//       return res.status(403).send({
-//         msg: "Authentication!!!",
-//       });
-//     }
-
-//     const User = await user.findOne({
-//       username: username,
-//     });
-
-//     const Vehicle = await vehicle.findOne({
-//       _id: vehicleID,
-//     });
-
-//     if (!User) {
-//       return res.status(401).send({
-//         msg: "Not found user",
-//       });
-//     }
-
-//     if (!Vehicle) {
-//       return res.status(401).send({
-//         msg: "Not found vehicle",
-//       });
-//     }
-
-//     const order = await order.create({
-//       userID: User._id,
-//       address: address,
-//       start: start,
-//       end: end,
-//       vehicleID: vehicleID,
-//       serviceType: serviceType,
-//       clientRequire: clientRequire,
-//       total: total,
-//     });
-
-//     return res.status(200).send({
-//       msg: "Book a trip success!!",
-//       order,
-//     });
-//   } catch (error) {
-//     return res.status(500).send({
-//       msg: "Internal Server Error",
-//     });
-//   }
-// };
-
-// const cancleTrip = async (req, res) => {
-//   try {
-//     const username = getAccess(req.headers["authorization"]);
-
-//     if (!username) {
-//       return res.status(403).send({
-//         msg: "Authentication!!!",
-//       });
-//     }
-
-//     const User = await user.findOne({
-//       username: username,
-//     });
-
-//     const Vehicle = await vehicle.findOne({
-//       _id: vehicleID,
-//     });
-
-//     if (!User) {
-//       return res.status(401).send({
-//         msg: "Not found user",
-//       });
-//     }
-
-//     if (!Vehicle) {
-//       return res.status(401).send({
-//         msg: "Not found vehicle",
-//       });
-//     }
-
-//     await vehicle.findOneAndDelete({
-//       _id: Vehicle._id,
-//     });
-
-//     return res.status(200).send({
-//       msg: "Cancle success!!",
-//     });
-//   } catch (error) {
-//     return res.status(500).send({
-//       msg: "Internal Server Error",
-//     });
-//   }
-// };
-
 //Admin
 const getAllUsers = async (req, res) => {
   try {
@@ -377,9 +241,29 @@ const deleteUser = async (req, res) => {
       });
     }
 
-    await user.findOneAndDelete({
+    const dltUser = await user.findOneAndDelete({
       _id: req.body.userID,
     });
+
+    await account.findOneAndDelete({
+      username: dltUser.username,
+    });
+
+    await wallet.findOneAndDelete({
+      userID: dltUser.id,
+    });
+
+    if (dltUser.role == "owner") {
+      const dltVehicle = await vehicle.findOneAndDelete({
+        driverID: dltUser.id,
+      });
+
+      if (dltVehicle) {
+        await vehicleSpec.findOneAndDelete({
+          vehicleID: dltVehicle.id,
+        });
+      }
+    }
 
     return res.status(200).send({
       msg: "Delete user success!!",
@@ -421,6 +305,10 @@ const recharge = async (req, res) => {
         userID: User.id,
         amount: amount,
       });
+      
+      return res.status(200).send({
+        msg: "Recharge succcess!!!",
+      });
     }
 
     await wallet.findOneAndUpdate(
@@ -434,56 +322,6 @@ const recharge = async (req, res) => {
 
     return res.status(200).send({
       msg: "Recharge succcess!!!",
-    });
-  } catch (error) {
-    return res.status(500).send({
-      msg: "Internal Server Error",
-    });
-  }
-};
-
-const updateWallet = async (req, res) => {
-  try {
-    const { amount } = req.body;
-    const username = getAccess(req.headers["authorization"]);
-
-    if (!username) {
-      return res.status(403).send({
-        msg: "Authentication!!!",
-      });
-    }
-
-    const User = await user.findOne({
-      username: username,
-    });
-
-    if (!User) {
-      return res.status(401).send({
-        msg: "Not found user",
-      });
-    }
-
-    const Wallet = await wallet.find({
-      userID: User._id,
-    });
-
-    if (!Wallet) {
-      return res.status(401).send({
-        msg: "Not found wallet",
-      });
-    }
-
-    await wallet.findOneAndUpdate(
-      {
-        _id: Wallet._id,
-      },
-      {
-        amount: amount,
-      }
-    );
-
-    return res.status(200).send({
-      msg: "Update wallet succcess!!!",
     });
   } catch (error) {
     return res.status(500).send({
@@ -547,11 +385,7 @@ module.exports = {
   getUserDetails,
   editUserInfo,
   getAllUsers,
-  getHistoryList,
   getOWnerDetails,
-
-  // bookTrip,
-  // cancleTrip,
   deleteUser,
   recharge,
   responseNewVehicle,

@@ -4,10 +4,7 @@ const {
   getUserDetails,
   editUserInfo,
   getAllUsers,
-  getHistoryList,
   getOWnerDetails,
-  // bookTrip,
-  // cancleTrip,
   deleteUser,
   recharge,
   responseNewVehicle,
@@ -17,8 +14,6 @@ const {
 router.get("/details", getUserDetails).patch("/edit-info", editUserInfo);
 
 router.get("/all-users", getAllUsers);
-
-router.get("/history", getHistoryList);
 
 router.delete("/", deleteUser);
 

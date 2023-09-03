@@ -166,6 +166,8 @@ const getCurrentOrder = async (req, res) => {
     const Order = await order.find({
       userID: User._id,
       isHandle: true,
+      isCompleted: false,
+      isResponse: true,
     });
 
     const VehicleList = [];

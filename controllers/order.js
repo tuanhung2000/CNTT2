@@ -163,20 +163,25 @@ const getCurrentOrder = async (req, res) => {
         msg: "Not found user",
       });
     }
-    const Order = await order.findOne({
+    const Order = await order.find({
       userID: User._id,
-      isCompleted: false,
       isHandle: true,
-      isResponse: true,
     });
 
-    const Vehicle = await vehicle.findOne({
-      _id: Order.vehicleID,
-    });
+    const VehicleList = [];
+    const getVehicleList = async () => {
+      for (let i = 0; i < Order.length; i++) {
+        let ve = await vehicle.findOne({
+          _id: Order[i].vehicleID,
+        });
+        VehicleList.push(ve);
+      }
+      return VehicleList;
+    };
 
     return res.status(200).send({
       orders: Order,
-      vehicles: Vehicle,
+      vehicles: await getVehicleList(),
     });
   } catch (e) {
     return res.status(500).send({

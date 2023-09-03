@@ -32,11 +32,13 @@ const getAllOrder = async (req, res) => {
       });
       let VehicleList = [];
       Order.forEach(async (or) => {
-        VehicleList.push(
-          await vehicle.findOne({
-            _id: or.vehicleID,
-          })
-        );
+        let ve = await vehicle.findOne({
+          _id: or.vehicleID,
+        });
+
+        if (ve) {
+          VehicleList.push(ve);
+        }
       });
       return res.status(200).send({
         orders: Order,
@@ -85,7 +87,9 @@ const getOwnedOrder = async (req, res) => {
           let ve = await vehicle.findOne({
             _id: Order[i].vehicleID,
           });
-          VehicleList.push(ve);
+          if (ve) {
+            VehicleList.push(ve);
+          }
         }
         return VehicleList;
       };
@@ -95,7 +99,9 @@ const getOwnedOrder = async (req, res) => {
           let ve = await user.findOne({
             _id: Order[i].driverID,
           });
-          DriverList.push(ve);
+          if (ve) {
+            DriverList.push(ve);
+          }
         }
         return DriverList;
       };
@@ -117,7 +123,9 @@ const getOwnedOrder = async (req, res) => {
         let ve = await vehicle.findOne({
           _id: Order[i].vehicleID,
         });
-        VehicleList.push(ve);
+        if (ve) {
+          VehicleList.push(ve);
+        }
       }
       return VehicleList;
     };
@@ -127,7 +135,9 @@ const getOwnedOrder = async (req, res) => {
         let ve = await user.findOne({
           _id: Order[i].userID,
         });
-        UserList.push(ve);
+        if (ve) {
+          UserList.push(ve);
+        }
       }
       return UserList;
     };

@@ -29,12 +29,17 @@ const getAllVehicle = async (req, res) => {
     const Vehicle = await vehicle.find({ isAvailable: true, isAccepted: true });
     let result = [];
     for (let i = 0; i < Vehicle.length; i++) {
-      const newObjc = Object.assign({
-        spec: await vehicleSpec.findOne({
-          vehicleID: Vehicle[i].id,
-        }),
-        vehicle: Vehicle[i],
+      let newObjc = {};
+      let spec = await vehicleSpec.findOne({
+        vehicleID: Vehicle[i].id,
       });
+      if (spec) {
+        newObjc = Object.assign({
+          spec: spec,
+          vehicle: Vehicle[i],
+        });
+      }
+
       result.push(newObjc);
     }
 

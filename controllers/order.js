@@ -176,7 +176,9 @@ const getCurrentOrder = async (req, res) => {
         let ve = await vehicle.findOne({
           _id: Order[i].vehicleID,
         });
-        VehicleList.push(ve);
+        if (ve) {
+          VehicleList.push(ve);
+        }
       }
       return VehicleList;
     };

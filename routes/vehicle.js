@@ -6,7 +6,6 @@ const {
   createVehicle,
   editVehicle,
   deleteVehicle,
-  createVehicleList,
   queryVehicle,
   getOwnVehicle
 } = require("../controllers/vehicle");
@@ -20,7 +19,6 @@ router
   .get("/:vehicleID", getVehicle)
 
   .post("/", createVehicle)
-  .post("/vehicle_list", createVehicleList)
 
   .patch("/:vehicleID", editVehicle)
   .delete("/:vehicleID", deleteVehicle);

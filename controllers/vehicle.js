@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const user = require("../models/user");
 const account = require("../models/account");
 const vehicle = require("../models/vehicle");
-const vehicleList = require("../models/vehicleList");
 const makes = require("../models/makes");
 const models = require("../models/models");
 const order = require("../models/order");
@@ -29,7 +28,11 @@ const getAllVehicle = async (req, res) => {
       }
     }
 
-    const Vehicle = await vehicle.find({ isAvailable: true, isAccepted: true });
+    const Vehicle = await vehicle.find({
+      isAvailable: true,
+      isAccepted: true,
+      isHandled: true,
+    });
     let result = [];
     for (let i = 0; i < Vehicle.length; i++) {
       let newObjc = {};
@@ -57,7 +60,11 @@ const getAllVehicle = async (req, res) => {
 const getVehicle = async (req, res) => {
   try {
     const ID = req.params.vehicleID;
-    const Vehicle = await vehicle.findOne({ _id: ID });
+    const Vehicle = await vehicle.findOne({
+      _id: ID,
+      isAccepted: true,
+      isHandled: true,
+    });
 
     if (!Vehicle) {
       return res.status(401).send({
@@ -114,6 +121,8 @@ const getOwnVehicle = async (req, res) => {
 
     const ownedVehicle = await vehicle.find({
       driverID: User.id,
+      isAccepted: true,
+      isHandled: true,
     });
 
     return res.status(200).send({
@@ -280,6 +289,8 @@ const editVehicle = async (req, res) => {
     const ownedVehicle = await vehicle.findById({
       _id: req.params.vehicleID,
       driverID: User.role != "admin" ? User.id : "",
+      isAccepted: true,
+      isHandled: true,
     });
 
     if (!ownedVehicle) {
@@ -334,6 +345,8 @@ const deleteVehicle = async (req, res) => {
     const ownedVehicle = await vehicle.findOne({
       _id: req.params.vehicleID,
       driverID: User.role !== "admin" ? User.id : "",
+      isAccepted: true,
+      isHandled: true,
     });
 
     if (!ownedVehicle) {
@@ -360,27 +373,6 @@ const deleteVehicle = async (req, res) => {
   }
 };
 
-const createVehicleList = async (req, res) => {
-  try {
-    console.log(req.body);
-    const { year, make, model, category } = req.body;
-
-    const Vehicle_List = await vehicleList.create({
-      year: "eaa",
-      make: "aaa",
-      model: "aaa",
-      category: "aaad",
-    });
-
-    return res
-      .status(200)
-      .send({ msg: "Vehicle registration successful", Vehicle_List });
-  } catch (error) {
-    return res.status(500).send({
-      msg: "Internal Server Error",
-    });
-  }
-};
 
 const queryVehicle = async (req, res) => {
   try {
@@ -416,7 +408,6 @@ module.exports = {
   createVehicle,
   editVehicle,
   deleteVehicle,
-  createVehicleList,
   queryVehicle,
   getOwnVehicle,
 };

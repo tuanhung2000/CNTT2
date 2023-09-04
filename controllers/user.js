@@ -168,7 +168,6 @@ const getNewVehicles = async (req, res) => {
 
     return res.status(200).send({
       vehicles: await vehicle.find({
-        isAccepted: false,
         isHandled: false,
       }),
     });
@@ -355,6 +354,7 @@ const responseNewVehicle = async (req, res) => {
 
     const Vehicle = await vehicle.findOne({
       _id: vehicleID,
+      isHandled: false,
     });
 
     if (!Vehicle) {
@@ -362,7 +362,7 @@ const responseNewVehicle = async (req, res) => {
         msg: "Not found vehicle",
       });
     }
-
+    
     await vehicle.findByIdAndUpdate(
       {
         _id: vehicleID,

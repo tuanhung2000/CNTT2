@@ -52,6 +52,10 @@ const VehicleSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isHandled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Vehicle", VehicleSchema);

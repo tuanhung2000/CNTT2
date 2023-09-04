@@ -21,7 +21,10 @@ const getAllVehicle = async (req, res) => {
       });
       if (User.role === "admin") {
         return res.status(200).send({
-          vehicleList: await vehicle.find({}),
+          vehicleList: await vehicle.find({
+            isAccepted: true,
+            isHandled: true,
+          }),
         });
       }
     }
@@ -172,16 +175,16 @@ const createVehicle = async (req, res) => {
       });
     }
 
-    const selfDriveVehicle = await vehicle.findOne({
-      driverID: User._id,
-      isSelfDrive: true,
-    });
+    // const selfDriveVehicle = await vehicle.findOne({
+    //   driverID: User._id,
+    //   isSelfDrive: true,
+    // });
 
-    if (selfDriveVehicle && isSelfDrive == true) {
-      return res.status(401).send({
-        msg: "Driver already have own self drive vehicle",
-      });
-    }
+    // if (selfDriveVehicle && isSelfDrive == true) {
+    //   return res.status(401).send({
+    //     msg: "Driver already have own self drive vehicle",
+    //   });
+    // }
 
     // const Make = await makes.findOne({
     //   make: make,

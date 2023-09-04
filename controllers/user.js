@@ -169,6 +169,7 @@ const getNewVehicles = async (req, res) => {
     return res.status(200).send({
       vehicles: await vehicle.find({
         isAccepted: false,
+        isHandled: false,
       }),
     });
   } catch (error) {
@@ -305,7 +306,7 @@ const recharge = async (req, res) => {
         userID: User.id,
         amount: amount,
       });
-      
+
       return res.status(200).send({
         msg: "Recharge succcess!!!",
       });
@@ -368,6 +369,7 @@ const responseNewVehicle = async (req, res) => {
       },
       {
         isAccepted: isAccepted,
+        isHandled: true,
       }
     );
 
